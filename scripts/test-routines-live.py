@@ -151,7 +151,9 @@ try:
     check('status: NXDOMAIN' in dns('long.example'), 'a confirmed long block is enforced')
     check(hashlib.sha256(Path('/etc/hosts').read_bytes()).hexdigest() == before, 'real system hosts configuration is unchanged')
     report = {'result': 'passed', 'checks': checks, 'scope': 'real sandbox XPC, schedule clock, DNS, restart and history'}
-    (root / 'outputs/completion/routines-live.json').write_text(json.dumps(report, indent=2) + '\n')
+    output = root / 'outputs/completion/routines-live.json'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({'checks': len(checks), 'result': 'passed'}), flush=True)
 except Exception:
     log = base / 'service.log'
