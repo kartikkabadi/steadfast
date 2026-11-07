@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// The Steadfast mark: two leaning bars, drawn in proportion to its frame so
+/// The Steadfast mark: two bars, drawn in proportion to its frame so
 /// it reads the same at 12 points in the menu as at 26 in the block ring.
 struct PauseMark: View {
     var body: some View {
@@ -13,7 +13,6 @@ struct PauseMark: View {
                 Capsule().frame(width: bar)
             }
             .frame(width: w, height: h * 0.88)
-            .rotationEffect(.degrees(5))
             .frame(width: w, height: h)
         }
     }
