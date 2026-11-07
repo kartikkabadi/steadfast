@@ -1,0 +1,21 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: build
+        run: swift build -c release
+      - name: check shell syntax
+        run: |
+          for script in scripts/*.sh scripts/*.command; do
+            bash -n "$script"
+          done
