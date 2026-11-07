@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[1]
 if len(sys.argv)!=2:raise SystemExit('usage: python3 scripts/benchmark-network.py output.json (build release first)')
 output=Path(sys.argv[1])
 binaries=Path(subprocess.check_output(['swift','build','--package-path',str(root),'-c','release','--show-bin-path'],text=True).strip())
-helper=binaries/'steadfastd' 
+helper=binaries/'steadfastd'
 label='dev.local.steadfast.test.speed.'+str(os.getpid());domain='gui/'+str(os.getuid())
 ids=itertools.count(1)
 ports=[]
