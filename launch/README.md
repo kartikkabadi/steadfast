@@ -16,12 +16,12 @@ The film rebuilds the app UI from `Sources/SteadfastApp`: palette, type scale, r
 
 ## film
 
-A 55-second 1920×1080 film at 60 fps.
+A 55-second 1920×1080 film at 60 fps. Use Python 3.12 or 3.13 for audio generation.
 
 ```sh
 cd launch/video
 npm install
-python3.12 -m venv .venv
+python3 -m venv .venv
 .venv/bin/pip install -r scripts/requirements.txt
 .venv/bin/python scripts/compose.py public
 npm run dev                           # Remotion Studio: preview and scrub
