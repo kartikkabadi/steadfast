@@ -12,7 +12,7 @@ launch/
   wrangler.toml
 ```
 
-Every screen in the film, on the site, and in the collages comes from the real app. The film rebuilds the UI from `Sources/SteadfastApp`: palette, type scale, radii, strings and layout. The site and collages use renders of the SwiftUI views themselves.
+The film rebuilds the app UI from `Sources/SteadfastApp`: palette, type scale, radii, strings and layout. The app screenshots on the site and in the collages come from SwiftUI views. The site also has hand-built HTML/CSS illustrations.
 
 ## film
 
@@ -21,6 +21,9 @@ A 55-second 1920×1080 film at 60 fps.
 ```sh
 cd launch/video
 npm install
+python3.12 -m venv .venv
+.venv/bin/pip install -r scripts/requirements.txt
+.venv/bin/python scripts/compose.py public
 npm run dev                           # Remotion Studio: preview and scrub
 npx remotion render Launch out/steadfast-launch.mp4 --codec=h264 --crf=16 --x264-preset=slow --audio-codec=aac --audio-bitrate=320k
 npx remotion still OgCard ../site/assets/og.png    # also: Plate, Poster
@@ -44,7 +47,7 @@ launch/scripts/render-collages.sh    # docs/images
 
 `render-screens.sh` compiles a copy of `scripts/check-ui.swift` beside the app's sources, with the film's story swapped in: "Ship my app", five websites, two hours. It then renders and crops each screen. The app's own sources are untouched.
 
-The four renders that print a clock time (ends at, unlocks at) start early in a minute, so they always agree. The windows are 800 pt wide. At that width, the app lays out the onboarding wordmark clear of the traffic lights.
+The four renders that print a clock time use the same timestamp. Main app windows are 800 pt wide, the review is 1100 pt, and activity, progress and routines are 720 pt wide. At 800 pt, the onboarding wordmark clears the traffic lights.
 
 `render-collages.sh` photographs `collage/*.html` with headless Chrome at 2×.
 
@@ -68,9 +71,9 @@ ffmpeg -i video/out/steadfast-launch.mp4 -c:v libx264 -crf 24 -preset slow -pix_
 The site is a Cloudflare Worker serving static assets. It answers only on `steadfast.kartikkabadi.com`: there is no `workers.dev` address and there are no preview URLs. Wrangler creates the custom domain's DNS record and certificate.
 
 ```sh
-cd launch && CLOUDFLARE_ACCOUNT_ID=<account that owns kartikkabadi.com> npx wrangler deploy
+cd launch && CLOUDFLARE_ACCOUNT_ID=YOUR_CLOUDFLARE_ACCOUNT_ID npx wrangler deploy
 ```
 
 - `site/_headers` sets a strict Content-Security-Policy. There are no third-party requests, and inline script is forbidden. It also sets HSTS, `nosniff`, frame denial, and a referrer and permissions policy.
 - `Cache-Control: no-transform` keeps Cloudflare from rewriting the HTML. That stops the zone's automatic Web Analytics beacon, so the page carries no analytics.
-- Static assets on Workers ignore `Range` headers, and Safari won't play video without them. `worker.js` runs only for `/assets/*.mp4` and returns `206 Partial Content`.
+- Static assets on Workers ignore `Range` headers, and Safari won't play video without them. `worker.js` runs only for `/assets/*.mp4` and returns `206 Partial Content` for valid byte ranges, `416` for unsatisfiable ranges, and `200` for ordinary requests.

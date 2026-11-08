@@ -68,6 +68,7 @@ const StretchInner = () => {
                 key={i}
                 style={{
                   display: 'inline-block',
+                  overflow: 'hidden',
                   fontSize: SIZE * o.k,
                   width: SIZE * 0.62 * o.k * o.p,
                   opacity: o.p,

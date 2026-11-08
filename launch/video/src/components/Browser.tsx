@@ -92,7 +92,7 @@ export const Browser: React.FC<{
                   height: 2.5,
                   width: `${loading * 100}%`,
                   background: 'rgb(0,122,255)',
-                  opacity: loading >= 1 ? 0 : 1,
+                  opacity: loading >= 1 ? 0 : 1 - error,
                 }}
               />
             )}

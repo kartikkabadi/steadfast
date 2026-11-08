@@ -68,10 +68,13 @@ def supersaw(freq, t, voices=7, detune=0.18):
     return out / voices
 
 
-def adsr(n, a, d, s, r, sustain_len=None):
+def adsr(n, a, d, s, r):
     a, d, r = int(a * SR), int(d * SR), int(r * SR)
-    if sustain_len is None:
-        sustain_len = max(0, n - a - d - r)
+    if a + d + r > n:
+        scale = n / (a + d + r)
+        a, d = int(a * scale), int(d * scale)
+        r = n - a - d
+    sustain_len = max(0, n - a - d - r)
     env = np.concatenate([
         np.linspace(0, 1, max(a, 1)),
         np.linspace(1, s, max(d, 1)),
@@ -100,9 +103,10 @@ IR_LONG = reverb_ir(4.5, 5000, 3)
 
 
 def verb(mono, ir=IR, mix=0.3):
-    l = fftconvolve(mono, ir[0])[: len(mono)]
-    r = fftconvolve(mono, ir[1])[: len(mono)]
-    return np.stack([mono * (1 - mix) + l * mix, mono * (1 - mix) + r * mix], 1)
+    l = fftconvolve(mono, ir[0])
+    r = fftconvolve(mono, ir[1])
+    dry = np.pad(mono, (0, len(l) - len(mono)))
+    return np.stack([dry * (1 - mix) + l * mix, dry * (1 - mix) + r * mix], 1)
 
 
 def place(buf, sig, at, gain=1.0, pan=0.0):
@@ -181,7 +185,7 @@ def stab(notes, dur=0.35):
     for n in notes:
         s += supersaw(midi(n), t, 7, 0.22)
     s = lp_sweep(s / len(notes), 3200 + 3000 * np.exp(-t * 10))
-    return s * adsr(len(t), 0.003, 0.15, 0.55, 0.3, dur) * 0.6
+    return s * adsr(len(t), 0.003, 0.15, 0.55, 0.3) * 0.6
 
 
 def riser(dur, start=300, end=7000):

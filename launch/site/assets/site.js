@@ -15,25 +15,13 @@
   const text = 'curl -fsSL https://github.com/kartikkabadi/steadfast/releases/latest/download/install.sh | /bin/bash';
   btn.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
-    catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('cmd')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Press ⌘C'; }
+    catch { const r = document.createRange(); r.setStartAfter(document.querySelector('#cmd .p')); r.setEndAfter(document.getElementById('cmd').lastChild); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Press ⌘C'; }
     setTimeout(() => (btn.textContent = 'Copy'), 1800);
   });
   // Fade the command's edge only while some of it is out of view.
   const code = document.getElementById('cmd');
   const edge = () => code.classList.toggle('clipped', code.scrollLeft + code.clientWidth < code.scrollWidth - 1);
   edge(); addEventListener('resize', edge); code.addEventListener('scroll', edge, {passive: true});
-})();
-
-/* Film sound toggle. */
-(() => {
-  const v = document.getElementById('film');
-  const b = document.getElementById('sound');
-  const label = b.querySelector('span');
-  b.addEventListener('click', () => {
-    if (v.muted) { v.muted = false; v.currentTime = 0; v.play(); label.textContent = 'Mute'; b.setAttribute('aria-pressed', 'true'); }
-    else { v.muted = true; label.textContent = 'Play with sound'; b.setAttribute('aria-pressed', 'false'); }
-  });
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); }
 })();
 
 /*

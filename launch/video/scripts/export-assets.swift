@@ -35,7 +35,11 @@ for (name, weight) in symbols {
 }
 let apps = ["/Applications/Spotify.app", "/Applications/WhatsApp.app", "/Applications/Google Chrome.app",
             "/System/Applications/Messages.app", "/System/Applications/Music.app", "/Applications/Xcode.app"]
-for path in apps where FileManager.default.fileExists(atPath: path) {
+for path in apps {
+    guard FileManager.default.fileExists(atPath: path) else {
+        fputs("missing application: \(path)\n", stderr)
+        exit(1)
+    }
     let icon = NSWorkspace.shared.icon(forFile: path)
     let name = (path as NSString).lastPathComponent.replacingOccurrences(of: ".app", with: "").lowercased().replacingOccurrences(of: " ", with: "-")
     savePNG(icon, NSSize(width: 512, height: 512), "\(out)/apps/\(name).png")

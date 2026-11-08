@@ -201,5 +201,8 @@ export const grainField = createEffect<GrainFieldParams, State>({
     for (const [k, v] of Object.entries(r)) {
       if (typeof v !== 'number' || !Number.isFinite(v)) throw new TypeError(`grainField: ${k} must be a finite number`);
     }
+    for (const k of Object.keys(schema) as (keyof typeof schema)[]) {
+      if (r[k] < schema[k].min || r[k] > schema[k].max) throw new RangeError(`grainField: ${k} is out of range`);
+    }
   },
 });

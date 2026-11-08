@@ -8,3 +8,5 @@ build
 # Remotion's agent skills: reinstall with `npx skills add remotion-dev/skills` (pinned in skills-lock.json)
 .agents
 .claude
+
+.venv

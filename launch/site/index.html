@@ -150,18 +150,8 @@ h3 { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.
   aspect-ratio: 16 / 9;
 }
 .frame video { width: 100%; height: 100%; object-fit: cover; }
-.sound {
-  position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px;
-  height: 40px; padding: 0 16px; border: 0; border-radius: 999px; cursor: pointer;
-  font: 600 14px var(--font); color: #fff; background: rgba(20,20,24,.62);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  transition: background-color .15s ease;
-}
-.sound:hover { background: rgba(20,20,24,.78); }
-.sound svg { width: 16px; height: 16px; }
-
 /* ---------- sections ---------- */
-section { padding: clamp(88px, 12vw, 150px) 0; }
+section { padding: clamp(88px, 12vw, 150px) 0; scroll-margin-top: 52px; }
 .center { text-align: center; }
 .section-title { font-size: clamp(38px, 5.6vw, 72px); }
 
@@ -323,11 +313,9 @@ footer a:hover { color: var(--ink); }
   <div class="film">
     <div class="wrap">
       <div class="frame">
-        <video id="film" src="assets/steadfast-launch.mp4" poster="assets/poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
-        <button class="sound" id="sound" type="button" aria-pressed="false">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2 6h2.5L8 3v10L4.5 10H2z"/><path id="wave" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M10.5 5.5c1 .8 1 4.2 0 5M12.5 3.8c2 1.8 2 6.6 0 8.4"/></svg>
-          <span>Play with sound</span>
-        </button>
+        <video id="film" src="assets/steadfast-launch.mp4" poster="assets/poster.jpg" controls playsinline preload="metadata">
+          <track kind="captions" src="assets/film-captions.vtt" srclang="en" label="English" default>
+        </video>
       </div>
     </div>
   </div>
@@ -400,7 +388,7 @@ footer a:hover { color: var(--ink); }
       </div>
       <div class="stack">
         <img class="menu" src="assets/ui/menu.png" alt="Steadfast’s menu bar panel: Blocking, 2 h left, Quit Steadfast" width="602" height="626" loading="lazy">
-        <img class="notice" src="assets/ui/notice.png" alt="Notice: Spotify is blocked. Steadfast unlocks it at 07:21. Making room for: Ship my app" width="721" height="154" loading="lazy">
+        <img class="notice" src="assets/ui/notice.png" alt="Notice: Spotify is blocked. Making room for: Ship my app" width="721" height="154" loading="lazy">
       </div>
     </div>
   </section>

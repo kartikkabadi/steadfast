@@ -35,8 +35,8 @@ export const Cursor: React.FC<{
     viewBox="-2 -2 18 24"
     style={{
       position: 'absolute',
-      left: x - 2 * (28 / 18) * scale,
-      top: y - 2 * (36 / 24) * scale,
+      left: x - 2 * (28 / 18),
+      top: y - 2 * (36 / 24),
       opacity,
       scale: `${scale * (1 - press * 0.16)}`,
       transformOrigin: `${2 * (28 / 18)}px ${2 * (36 / 24)}px`,

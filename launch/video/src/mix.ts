@@ -10,7 +10,7 @@ import {CLICK} from './scenes/NoPause';
  * music should dip under it. The music sidesteps each click for ~0.2 s so the
  * interface is heard without the groove losing its drive.
  */
-const SCENE = {coldOpen: 0, howTo: 12, noPause: 28, keepsWorking: 32, features: 40};
+const SCENE = {blocks: 10, howTo: 12, noPause: 28, keepsWorking: 32, features: 40};
 
 type Duck = {at: number; depth: number; hold?: number};
 
@@ -18,17 +18,20 @@ export const DUCKS: Duck[] = [
   ...typedTimes(DOMAIN, TYPE_AT, CPS).map((at) => ({at, depth: 0.25})),
   {at: ENTER, depth: 0.3},
   {at: LOADED, depth: 0.35, hold: 0.3},
-  ...[T.chooseClick, T.xClick, T.ytClick, T.redditClick, T.doneClick, T.durationClick, T.purposeClick, T.reviewClick].map((c) => ({
-    at: SCENE.howTo + c,
+  ...[0.5, 0.75, 1, 1.25, 1.5].map((at) => ({at: SCENE.blocks + at, depth: 0.35})),
+  ...[T.chooseClick, T.xClick, T.ytClick, T.redditClick, T.doneClick, T.durationClick, T.purposeClick, T.reviewClick, T.commitClick].map((c) => ({
+    at: SCENE.howTo + c - 0.03,
     depth: 0.45,
   })),
+  ...[T.sheetIn - 0.05, T.sheetOut, T.durationClick - 0.1, T.reviewIn - 0.05].map((at) => ({at: SCENE.howTo + at, depth: 0.35})),
   ...typedTimes(NAME, T.typeAt, 12).map((at) => ({at: SCENE.howTo + at, depth: 0.3})),
   {at: SCENE.howTo + T.commitClick, depth: 0.55, hold: 0.45},
-  {at: SCENE.noPause + CLICK, depth: 0.4, hold: 0.25},
-  {at: SCENE.keepsWorking + QUIT, depth: 0.4},
+  {at: SCENE.noPause + CLICK - 0.03, depth: 0.4, hold: 0.25},
+  {at: SCENE.keepsWorking + QUIT - 0.03, depth: 0.4},
+  {at: SCENE.keepsWorking + 1.9, depth: 0.3},
   {at: SCENE.keepsWorking + 2.3, depth: 0.4, hold: 0.25},
   {at: SCENE.features + 1.3, depth: 0.35},
-  {at: SCENE.features + 2.85, depth: 0.35},
+  {at: SCENE.features + 2.75, depth: 0.35},
 ];
 
 const BASE = 0.86;

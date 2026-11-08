@@ -239,7 +239,7 @@ export const WebsitePicker: React.FC<{
         <Sym name="magnifyingglass" size={13} color={ui.muted} />
         Search websites or paste a domain
       </div>
-      <div style={{height: 300, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 12}}>
+      <div style={{height: 350, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 6}}>
         <div style={{flexShrink: 0}}>
         <Titled title="Popular">
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8}}>
@@ -261,7 +261,7 @@ export const WebsitePicker: React.FC<{
         </div>
         {CATEGORIES.map(([name, n]) => (
           <Card key={name} style={{flexShrink: 0}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px', height: 36}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px', height: 30}}>
               <Sym name="chevron.right" size={9} color={ui.muted} />
               <div style={{...font(type.body, 500), color: ui.ink}}>{name}</div>
               <div style={{...font(type.caption), color: ui.muted, flex: 1}}>{n}</div>
@@ -311,7 +311,7 @@ export const ReviewSheet: React.FC<{
   >
     <div style={{display: 'flex', flexDirection: 'column', gap: 14}}>
       <Titled title="Websites">
-        <Card style={{height: Math.min(168, domains.length * 37)}}>
+        <Card style={{height: domains.length * 37 - 1}}>
           {domains.map((d, i) => (
             <div key={d}>
               {i > 0 && <Rule />}

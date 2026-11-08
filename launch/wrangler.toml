@@ -1,6 +1,6 @@
 # steadfast.kartikkabadi.com — static assets from site/. worker.js runs only for the
 # film, to answer the byte-range requests Safari needs to play video.
-# Deploy: cd launch && CLOUDFLARE_ACCOUNT_ID=<account that owns kartikkabadi.com> npx wrangler deploy
+# Deploy: cd launch && CLOUDFLARE_ACCOUNT_ID=YOUR_CLOUDFLARE_ACCOUNT_ID npx wrangler deploy
 name = "steadfast"
 main = "worker.js"
 compatibility_date = "2026-10-30"

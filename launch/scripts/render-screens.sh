@@ -37,25 +37,38 @@ swaps = [
 for old, new in swaps:
     assert src.count(old) == 1, f"fixture changed upstream; update launch/scripts/render-screens.sh: {old[:60]}"
     src = src.replace(old, new)
+src = src.replace("Date()", "Date(timeIntervalSince1970: TimeInterval(ProcessInfo.processInfo.environment[\"STEADFAST_CAPTURE_TIME\"]!)!)")
 open(sys.argv[2], "w").write(src)
+EOF
+
+python3 - "$ROOT/Sources/SteadfastApp/Model.swift" "$WORK/Model.swift" <<'EOF'
+import sys
+src = open(sys.argv[1]).read()
+old = 'var currentTime: Date { _ = tick; return max(Date(), snapshot?.now ?? .distantPast) }'
+new = 'var currentTime: Date { _ = tick; return Date(timeIntervalSince1970: TimeInterval(ProcessInfo.processInfo.environment["STEADFAST_CAPTURE_TIME"]!)!) }'
+assert src.count(old) == 1
+open(sys.argv[2], "w").write(src.replace(old, new))
 EOF
 
 swift build --package-path "$ROOT" -c release >/dev/null
 BIN="$(swift build --package-path "$ROOT" -c release --show-bin-path)"
 SOURCES=()
 for source in "$ROOT"/Sources/SteadfastApp/*.swift; do
-  [[ "$(basename "$source")" == main.swift ]] || SOURCES+=("$source")
+  case "$(basename "$source")" in
+    main.swift) ;;
+    Model.swift) SOURCES+=("$WORK/Model.swift") ;;
+    *) SOURCES+=("$source") ;;
+  esac
 done
 swiftc -swift-version 6 -parse-as-library -default-isolation MainActor -I "$BIN" \
   "${SOURCES[@]}" "$WORK/check-ui.swift" "$BIN/SteadfastCore.o" -o "$WORK/ui"
 
+export STEADFAST_CAPTURE_TIME="$(date +%s)"
 export STEADFAST_TEST_SERVICE=dev.local.steadfast.test.ui.unavailable
 render() { "$WORK/ui" --light "$@" >/dev/null; }
 render --width 800 --height 712 --state onboarding-blocklist --output "$OUT/onboarding-blocklist.png"
 render --width 800 --height 712 --state selected   --output "$OUT/selected.png"
-# These four print the same clock time (ends at / unlocks at), so start them
-# early in a minute and they always agree.
-while (( 10#$(date +%S) > 30 )); do sleep 1; done
+# These four use the same capture timestamp for ends at / unlocks at.
 render --width 1100 --height 760 --state review    --output "$WORK/review.png"
 render --width 800 --height 712 --state active-aim --output "$OUT/active-aim.png"
 render --width 420 --height 520 --state active-aim --menu --output "$WORK/menu.png"
