@@ -1,0 +1,10 @@
+node_modules
+out
+build
+.remotion
+.DS_Store
+.env
+
+# Remotion's agent skills: reinstall with `npx skills add remotion-dev/skills` (pinned in skills-lock.json)
+.agents
+.claude
