@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 import Network
 import XPC
 import OSLog
@@ -194,6 +195,20 @@ import SteadfastCore
         do {
             guard data.count <= 320_000 else { throw Failure("request is too large") }
             let request = try JSONDecoder().decode(Request.self, from: data)
+            // The uninstaller holds the exclusive lock from its final check through bootout.
+            // Shared locks make each policy mutation atomic with respect to that check.
+            var lockFD: Int32 = -1
+            if request.action != "status" && request.action != "prepare-uninstall" {
+                lockFD = open(directory.appendingPathComponent("uninstall.lock").path, O_CREAT | O_RDWR | O_NOFOLLOW, 0o600)
+                guard lockFD >= 0 else { throw Failure("could not check uninstall state") }
+                guard flock(lockFD, LOCK_SH | LOCK_NB) == 0 else {
+                    close(lockFD)
+                    throw Failure("uninstall is in progress; try again shortly")
+                }
+            }
+            defer {
+                if lockFD >= 0 { flock(lockFD, LOCK_UN); close(lockFD) }
+            }
             switch request.action {
             case "status": break
             case "prepare-uninstall":
@@ -205,6 +220,7 @@ import SteadfastCore
                     throw Failure("remove daily limits or wait for them to reset before uninstalling")
                 }
                 refresh()
+                guard enforcementError == nil else { throw Failure("could not restore dns configuration before uninstalling") }
             case "save-limit", "delete-limit", "record-usage":
                 var next = policy
                 let time = now

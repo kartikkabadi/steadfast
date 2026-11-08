@@ -91,17 +91,18 @@
   };
   gl.uniform1f(U.seed, 1.3); gl.uniform1f(U.warm, 0.6); gl.uniform1f(U.angle, -0.42);
   gl.uniform1f(U.offset, 0.05); gl.uniform1f(U.grain, 0.55);
-  size(); addEventListener('resize', size);
+  size();
   const t0 = performance.now();
   let visible = true, raf = 0;
   const draw = now => {
-    gl.uniform1f(U.time, 14 + (now - t0) / 1000);
+    gl.uniform1f(U.time, 14 + Math.min(now - t0, 4900) / 1000);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    if (!reduce && visible) raf = requestAnimationFrame(draw);
+    if (!reduce && visible && now - t0 < 4900) raf = requestAnimationFrame(draw);
   };
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible && !reduce) { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); }
+    if (visible && !reduce && performance.now() - t0 < 4900) { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); }
   }).observe(canvas);
+  addEventListener('resize', () => { size(); cancelAnimationFrame(raf); draw(performance.now()); });
   draw(performance.now());
 })();

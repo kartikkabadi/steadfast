@@ -7,9 +7,8 @@ import SteadfastCore
 /// Closes blocked apps.
 ///
 /// While any app is blocked, a kqueue watches every process for fork, exec and exit.
-/// A launch from the Dock, Finder, Spotlight or `open` is a launchd fork followed by
-/// an exec of the app's executable, so it is stopped at exec, before the app's own
-/// code runs. A one-second sweep of the process table backs that up. With no app
+/// Matching processes are closed after launch; app code can run before detection.
+/// A one-second sweep of the process table backs up the event watcher. With no app
 /// blocks the watcher closes completely and costs nothing.
 ///
 /// Everything runs on the main queue with the DNS listener. Each step is bounded:

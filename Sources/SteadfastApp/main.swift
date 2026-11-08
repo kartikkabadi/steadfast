@@ -33,31 +33,6 @@ struct SteadfastApp: App {
                 .task(id: scenePhase) {
                     if scenePhase == .active { await model.checkForUpdate() }
                 }
-                .task(id: scenePhase) {
-                    guard scenePhase == .active else { return }
-                    do {
-                        let updates = try ServiceEvents.updates(for: model.service)
-                        await model.refresh()
-                        for await _ in updates { await model.refresh() }
-                    } catch {
-                        // Keep status current if the system notification channel is unavailable.
-                        while !Task.isCancelled {
-                            await model.refresh()
-                            do { try await Task.sleep(for: .seconds(30)) } catch { break }
-                        }
-                    }
-                }
-                .task(id: scenePhase == .active && !model.serviceReady) {
-                    guard scenePhase == .active, !model.serviceReady else { return }
-                    while !Task.isCancelled {
-                        do { try await Task.sleep(for: .seconds(10)) } catch { break }
-                        await model.refresh()
-                    }
-                }
-                .onReceive(NotificationCenter.default.publisher(for: ServiceEvents.disconnected).receive(on: RunLoop.main)) { event in
-                    guard scenePhase == .active, event.object as? String == model.service else { return }
-                    model.serviceDisconnected()
-                }
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 760, height: 680)
@@ -85,7 +60,32 @@ struct SteadfastApp: App {
         MenuBarExtra {
             StatusMenu(model: model).focusEffectDisabled()
         } label: {
-            Image(nsImage: StatusMenu.icon).accessibilityLabel("Steadfast").onAppear { model.outcomes.start() }
+            Image(nsImage: StatusMenu.icon).accessibilityLabel("Steadfast")
+                .onAppear { model.outcomes.start() }
+                .task {
+                    do {
+                        let updates = try ServiceEvents.updates(for: model.service)
+                        await model.refresh()
+                        for await _ in updates { await model.refresh() }
+                    } catch {
+                        // Keep status current if the system notification channel is unavailable.
+                        while !Task.isCancelled {
+                            await model.refresh()
+                            do { try await Task.sleep(for: .seconds(30)) } catch { break }
+                        }
+                    }
+                }
+                .task(id: !model.serviceReady) {
+                    guard !model.serviceReady else { return }
+                    while !Task.isCancelled {
+                        do { try await Task.sleep(for: .seconds(10)) } catch { break }
+                        await model.refresh()
+                    }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: ServiceEvents.disconnected).receive(on: RunLoop.main)) { event in
+                    guard event.object as? String == model.service else { return }
+                    model.serviceDisconnected()
+                }
         }
         .menuBarExtraStyle(.window)
     }

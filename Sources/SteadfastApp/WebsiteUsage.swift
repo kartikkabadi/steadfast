@@ -11,6 +11,38 @@ import SteadfastCore
     private(set) var status: String?
     private(set) var activity = Activity.waiting
     private var task: Task<Void, Never>?
+    private var observers: [(NotificationCenter, NSObjectProtocol)] = []
+    private var asleep = false
+    private var screensAsleep = false
+    private var locked = false
+    private var switchedOut = false
+    private var generation = 0
+    private var paused: Bool { asleep || screensAsleep || locked || switchedOut }
+
+    private func observeAvailability() {
+        guard observers.isEmpty else { return }
+        func on(_ center: NotificationCenter, _ name: Notification.Name, _ change: @escaping @MainActor (WebsiteUsage) -> Void) {
+            let token = center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    change(self)
+                    self.generation += 1
+                    if self.paused { self.activity = .waiting }
+                }
+            }
+            observers.append((center, token))
+        }
+        let workspace = NSWorkspace.shared.notificationCenter
+        let distributed = DistributedNotificationCenter.default()
+        on(workspace, NSWorkspace.willSleepNotification) { $0.asleep = true }
+        on(workspace, NSWorkspace.didWakeNotification) { $0.asleep = false }
+        on(workspace, NSWorkspace.screensDidSleepNotification) { $0.screensAsleep = true }
+        on(workspace, NSWorkspace.screensDidWakeNotification) { $0.screensAsleep = false }
+        on(workspace, NSWorkspace.sessionDidResignActiveNotification) { $0.switchedOut = true }
+        on(workspace, NSWorkspace.sessionDidBecomeActiveNotification) { $0.switchedOut = false }
+        on(distributed, Notification.Name("com.apple.screenIsLocked")) { $0.locked = true }
+        on(distributed, Notification.Name("com.apple.screenIsUnlocked")) { $0.locked = false }
+    }
 
     func requestAccess() {
         authorized = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
@@ -19,8 +51,12 @@ import SteadfastCore
     func start(for model: Model) {
         authorized = AXIsProcessTrusted()
         guard !model.dailyLimits.isEmpty, task == nil else { return }
+        observeAvailability()
+        let session = CGSessionCopyCurrentDictionary() as? [String: Any]
+        locked = session?["CGSSessionScreenIsLocked"] as? Bool ?? false
+        switchedOut = (session?[kCGSessionOnConsoleKey as String] as? Bool) == false
         task = Task { [weak self, weak model] in
-            var previous: (pid_t, String, ContinuousClock.Instant)?
+            var previous: (pid_t, String, ContinuousClock.Instant, Int)?
             while !Task.isCancelled {
                 guard let self, let model else { return }
                 guard !model.dailyLimits.isEmpty else {
@@ -28,13 +64,15 @@ import SteadfastCore
                     return
                 }
                 self.authorized = AXIsProcessTrusted()
+                let generation = self.generation
                 let process = NSWorkspace.shared.frontmostApplication?.processIdentifier
                 let rules = model.dailyLimits.map(\.domain)
                 let host: String?
-                if self.authorized, model.serviceReady, let process, process != ProcessInfo.processInfo.processIdentifier {
+                if !self.paused, self.authorized, model.serviceReady, let process, process != ProcessInfo.processInfo.processIdentifier {
                     host = await Task.detached(priority: .utility) { ForegroundWebsite.host(in: process) }.value
                 } else { host = nil }
-                let stillFrontmost = process != nil && process == NSWorkspace.shared.frontmostApplication?.processIdentifier
+                let stillFrontmost = !self.paused && generation == self.generation && process != nil
+                    && process == NSWorkspace.shared.frontmostApplication?.processIdentifier
                 let match = host.flatMap { host in rules.first { Domain.matches(host, rule: $0) } }
                 let wasTracking = match.map { self.activity == .tracking($0) } ?? false
                 if !stillFrontmost || !wasTracking {
@@ -44,7 +82,7 @@ import SteadfastCore
                 }
                 let now = ContinuousClock.now
                 if let process, let match, stillFrontmost {
-                    if let prior = previous, prior.0 == process, prior.1 == match {
+                    if let prior = previous, prior.0 == process, prior.1 == match, prior.3 == generation {
                         let elapsed = prior.2.duration(to: now).components
                         let seconds = Double(elapsed.seconds) + Double(elapsed.attoseconds) / 1e18
                         if (0...8).contains(seconds) {
@@ -54,7 +92,8 @@ import SteadfastCore
                                 if result.now >= (model.snapshot?.now ?? .distantPast) { model.snapshot = result }
                                 self.status = nil
                                 let tracking = model.dailyLimits.contains { $0.domain == match && $0.blockedUntil(at: result.now) == nil }
-                                self.activity = tracking && process == NSWorkspace.shared.frontmostApplication?.processIdentifier
+                                self.activity = tracking && !self.paused && generation == self.generation
+                                    && process == NSWorkspace.shared.frontmostApplication?.processIdentifier
                                     ? .tracking(match) : .waiting
                             } catch {
                                 self.status = "usage could not be recorded. check the blocking connection."
@@ -62,7 +101,7 @@ import SteadfastCore
                             }
                         }
                     }
-                    previous = (process, match, now)
+                    previous = generation == self.generation ? (process, match, now, generation) : nil
                 } else { previous = nil }
                 do { try await Task.sleep(for: .seconds(5)) } catch { break }
             }

@@ -14,5 +14,5 @@
   Cache-Control: no-transform
 
 /assets/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Cache-Control: no-cache
 

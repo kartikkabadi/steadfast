@@ -21,6 +21,9 @@ trap '/bin/rm -rf "$STAGING"' EXIT
 APP="$STAGING/Steadfast.app"
 /usr/bin/codesign --verify --deep --strict -R "$PIN" "$APP"
 /usr/bin/codesign --verify --strict -R "$RUNTIME_PIN" "$APP"
+# Hold the lock until launchd has stopped the service and cleanup has finished.
+exec 9>"$STATE/uninstall.lock"
+/usr/bin/lockf -t 0 9
 # The service must be reachable and every commitment must have expired.
 "$APP/Contents/MacOS/Steadfast" --can-uninstall
 /bin/launchctl bootout system "$PLIST"

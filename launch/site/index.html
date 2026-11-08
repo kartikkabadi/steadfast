@@ -313,8 +313,8 @@ footer a:hover { color: var(--ink); }
   <div class="film">
     <div class="wrap">
       <div class="frame">
-        <video id="film" aria-label="Steadfast launch film" src="assets/steadfast-launch.mp4" poster="assets/poster.jpg" controls playsinline preload="metadata">
-          <track kind="captions" src="assets/film-captions.vtt" srclang="en" label="English" default>
+        <video id="film" aria-label="Steadfast launch film" src="assets/steadfast-launch.mp4?v=2" poster="assets/poster.jpg" controls playsinline preload="metadata">
+          <track kind="captions" src="assets/film-captions.vtt?v=2" srclang="en" label="English" default>
         </video>
       </div>
     </div>
@@ -384,7 +384,7 @@ footer a:hover { color: var(--ink); }
       <div>
         <h2 id="hold-title">No pause button.<br>On purpose.</h2>
         <p>Once a block starts, you can’t pause it, shorten it or end it early in the app. It keeps working even if you quit — a separate background service holds your blocks and schedules, not the window.</p>
-        <p>Blocked apps that are already open get ten seconds to save, then close. Later launches stop before the app’s own code runs.</p>
+        <p>Blocked apps that are already open get ten seconds to save, then close. Later launches close shortly after they start.</p>
       </div>
       <div class="stack">
         <img class="menu" src="assets/ui/menu.png" alt="Steadfast’s menu bar panel: Blocking, 2 h left, Quit Steadfast" width="602" height="626" loading="lazy">
@@ -511,6 +511,6 @@ footer a:hover { color: var(--ink); }
   </div>
 </footer>
 
-<script src="assets/site.js" defer></script>
+<script src="assets/site.js?v=2" defer></script>
 </body>
 </html>
