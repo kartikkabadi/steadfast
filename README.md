@@ -2,6 +2,10 @@
 
 A native macOS app built with Swift 6.4, SwiftUI, AppKit Liquid Glass, BSD UDP sockets, Network.framework TCP, and XPC. Choose distracting websites and Mac apps, then commit to a timed block. Websites are blocked across browsers through the Mac's system resolver; apps are closed as soon as they start.
 
+![Steadfast: a new block for "Ship my app", the review sheet, the active block, the menu bar panel and a blocked-app notice](docs/images/hero.jpg)
+
+Watch the launch film at **[steadfast.kartikkabadi.com](https://steadfast.kartikkabadi.com)**.
+
 ## install
 
 Steadfast needs an Apple silicon Mac with macOS 26 or later. Run:
@@ -19,6 +23,8 @@ Open `/Applications/Steadfast.app`. The app has three pages:
 - **today:** your aim and the last useful setup, ready to review again. **new block** opens a draft with an optional purpose, website and app choices, and a duration. only the final **block for …** button starts blocking. during a block, your purpose and unlock times stay in view; the full blocked list is below them. closing the window leaves blocks running.
 - **routines:** save choices and a duration for reuse or a weekly schedule. **start** opens the same commitment review. favorites appear on today and in the menu bar. editing a routine changes future starts and never shortens an active block.
 - **progress:** the year as a ring of recorded days with blocks. inspect a day with the mouse, arrow keys, Home or End. time with blocks active includes night hours, merges overlaps, and excludes browser diagnostics. it does not measure attention, time saved, or work completed. history keeps up to 200 completed blocks plus active blocks. expand a past block to see its choices, times, saved feedback, or save it as a routine. **use again** opens a fresh review.
+
+![Review, activity, routines and progress in Steadfast](docs/images/features.jpg)
 
 After a block finishes, today offers **did your last block help?** for up to seven days. answer, add an optional note, or skip. answers stay on this Mac and can be seen with the block in progress. there is no streak or overdue reflection.
 
@@ -142,6 +148,10 @@ The workspace uses plain rows and separators with a neutral background, system t
 If the window app is deleted, restore the same built app to `/Applications/Steadfast.app`; commitments remain in the separate service. If the service cannot start, inspect `/Library/Application Support/Steadfast/service.log` and `launchctl print system/dev.local.steadfast.service` as an administrator. A DNS-port conflict, corrupt policy, or filesystem failure is reported rather than resetting commitments.
 
 For emergency recovery, an administrator can boot out the named launchd job, remove only files beginning with `# managed by steadfast dns` from `/etc/resolver`, remove only the `# BEGIN STEADFAST DNS` through `# END STEADFAST DNS` section from `/etc/hosts`, and flush the DNS cache. Preserve all unrelated resolver and hosts entries. This recovery route is intentionally documented; this software does not attempt to defeat the computer owner.
+
+## launch film and website
+
+`launch/` holds the launch film (Remotion), the website, and the scripts behind the screenshots and the collages above. Every screen in them comes from the real app. See [launch/README.md](launch/README.md).
 
 ## license
 
