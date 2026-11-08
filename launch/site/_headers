@@ -1,0 +1,18 @@
+# Response headers, applied by Cloudflare to every static asset. The page is static and talks to no one:
+# no third-party scripts, fonts, analytics or requests of any kind.
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  # no-transform: Cloudflare may not rewrite the HTML (it stops the zone's automatic
+  # Web Analytics beacon from being injected; this page carries no analytics).
+  Cache-Control: no-transform
+
+/assets/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+

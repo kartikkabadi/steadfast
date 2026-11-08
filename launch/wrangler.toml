@@ -1,0 +1,18 @@
+# steadfast.kartikkabadi.com — static assets from site/. worker.js runs only for the
+# film, to answer the byte-range requests Safari needs to play video.
+# Deploy: cd launch && CLOUDFLARE_ACCOUNT_ID=<account that owns kartikkabadi.com> npx wrangler deploy
+name = "steadfast"
+main = "worker.js"
+compatibility_date = "2026-10-30"
+
+# Served only on the custom domain: no *.workers.dev address, no preview URLs.
+workers_dev = false
+preview_urls = false
+routes = [{ pattern = "steadfast.kartikkabadi.com", custom_domain = true }]
+
+[assets]
+directory = "./site"
+binding = "ASSETS"
+run_worker_first = ["/assets/*.mp4"]
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
